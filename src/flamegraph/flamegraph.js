@@ -106,6 +106,27 @@ window.addEventListener("keydown",function (e) {
         search_prompt();
     }
 }, false)
+window.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && e.key === '1') {
+        e.preventDefault();
+        if (!searching) { alert("searching [io]"); } else { alert("clearing search"); }
+        saved_search(".*net.*UDPConn.*writeMsg.*|.*socket.*recvmmsgF.*|.*socket::sendmsg.*|.*_libc_sendmsg.*|.*_libc_recvmsg.*|.*__recvmmsg.*|.*__sys_sendmsg_.*|.*tcp_sendmsg.*|.*__libc_sendto.*|.*__libc_recvmsg.*|.*__libc_recvfrom.*|.*sock_write.*|.*UdpSocket::recv_from.*|.*UdpSocket::send_to.*");
+    }
+});
+window.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && e.key === '2') {
+        e.preventDefault();
+        if (!searching) { alert("searching [crypto]"); } else { alert("clearing search"); }
+        saved_search(".*UnpackShortHeader.*|.*encryptPacket.*|.*aeshash.*|.*EVP_AEAD_CTX_seal_scatter.*|.*gcm_seal_scatter.*|.*AEAD_CTX_open.*|.*quiche::packet::encrypt_pkt.*|.*quiche::packet::decrypt_pkt.*|.*quiche::packet::decrypt_hdr.*|.*EVP_Decrypt.*|.*EVP_Encrypt.*|.*picoquic_protect_packet.*|.*picoquic_remove_header_protection.*|.*picoquic_remove_packet_protection.*");
+    }
+});
+window.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && e.key === '3') {
+        e.preventDefault();
+        if (!searching) { alert("searching [mem]"); } else { alert("clearing search"); }
+        saved_search(".*alloc.*|.*runtime.newobject.*|.*memmove.*|.*CopyBuffer.*|.*memcpy_.*");
+    }
+});
 // functions
 function get_params() {
     var params = {};
@@ -389,6 +410,20 @@ function search_prompt() {
         matchedtxt.firstChild.nodeValue = ""
     }
 }
+function saved_search(term) {
+    if (!searching) {
+        if (term != null) {
+            search(term)
+        }
+    } else {
+        reset_search();
+        searching = 0;
+        searchbtn.classList.remove("show");
+        searchbtn.firstChild.nodeValue = "Search"
+        matchedtxt.classList.add("hide");
+        matchedtxt.firstChild.nodeValue = ""
+    }
+}
 function search(term) {
     var re = new RegExp(term);
     var el = frames.children;
@@ -460,10 +495,12 @@ function search(term) {
         }
     }
     // display matched percent
+    console.log(maxwidth);
     matchedtxt.classList.remove("hide");
     var pct = 100 * count / maxwidth;
     if (pct != 100) pct = pct.toFixed(1);
-    matchedtxt.firstChild.nodeValue = "Matched: " + pct + "%";
+    var nfObject = new Intl.NumberFormat('en-US');
+    matchedtxt.firstChild.nodeValue = "Matched: " + pct + "% (" + nfObject.format(count) + " cycles)" ;
 }
 function format_percent(n) {
     return n.toFixed(4) + "%";
